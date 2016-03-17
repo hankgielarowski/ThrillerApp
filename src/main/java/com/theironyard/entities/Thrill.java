@@ -29,6 +29,9 @@ public class Thrill {
     @Column(nullable = false)
     String summary;
 
+    @ManyToOne
+    User user;
+
     public Thrill(String title, LocalDateTime postTime, LocalDate date, String location, String summary) {
         this.title = title;
         this.postTime = postTime;
