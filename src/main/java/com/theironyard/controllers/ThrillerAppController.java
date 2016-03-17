@@ -1,6 +1,8 @@
 package com.theironyard.controllers;
 
+import com.theironyard.entities.Thrill;
 import com.theironyard.entities.User;
+import com.theironyard.services.ThrillRepository;
 import com.theironyard.services.UserRepository;
 import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -20,6 +24,8 @@ public class ThrillerAppController {
     @Autowired
     UserRepository users;
 
+    @Autowired
+    ThrillRepository thrills;
     Server dbui;
 
     @PostConstruct
@@ -39,14 +45,14 @@ public class ThrillerAppController {
             existingUser = user;
             users.save(user);
         }
-        session.setAttribute("userName", existingUser.getName());
+        session.setAttribute("name", existingUser.getName());
         return existingUser;
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public User getLogin(HttpSession session) {
-        String userName = (String) session.getAttribute("userName");
-        return users.findByName(userName);
+        String name = (String) session.getAttribute("name");
+        return users.findByName(name);
     }
 
     @RequestMapping(path = "/logout", method = RequestMethod.POST)
@@ -78,6 +84,25 @@ public class ThrillerAppController {
     public User getUser(@PathVariable("id") int id) {
         return users.findOne(id);
     }
+    @RequestMapping(path = "/thrill", method = RequestMethod.POST)
+    public void addThrill(HttpSession session, @RequestBody Thrill thrill) {
+        String name = (String) session.getAttribute("name");
+        User user = users.findByName(name);
+        thrill.setUser(user);
+        thrills.save(thrill);
+    }
+    @RequestMapping(path = "/thrill", method = RequestMethod.GET)
+    public List<Thrill> getThrills() {
+        return (List<Thrill>) thrills.findAll();
+    }
 
+    @RequestMapping(path = "/thrill", method = RequestMethod.GET)
+    public Thrill getThrill (int id) {
+        return thrills.findOne(id);
+    }
+    @RequestMapping(path = "/thrill", method = RequestMethod.PUT)
+    public void editThrill (@RequestBody Thrill thrill) {
+        thrills.save(thrill);
+    }
 
 }
